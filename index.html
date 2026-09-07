@@ -1,154 +1,65 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💖 Catatanku Imut</title>
-<meta name="theme-color" content="#FF8B94">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2331/2331970.png">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-  body { font-family: 'Poppins'; background: linear-gradient(135deg, #FFE5EC, #E2F0CB); padding: 15px; max-width: 500px; margin: auto; }
-  h1 { color: #FF8B94; text-align: center; }
-.card { background: white; padding: 18px; border-radius: 20px; box-shadow: 0 4px 15px rgba(255,139,148,0.2); margin-bottom: 15px; }
-  input, select, button { width: 100%; padding: 12px; margin: 6px 0; border-radius: 12px; border: 1px solid #FFD6DA; font-family: 'Poppins'; font-size: 14px; }
-  button { background: #FF8B94; color: white; border: none; font-weight: 600; cursor: pointer; }
-  button:hover { background: #FFB3BA; }
-  button.delete { background: #FFC2C7; padding: 5px 10px; width: auto; font-size: 12px; }
-  button.gdrive { background: #4285F4; }
-  button.export { background: #A8E6CF; }
-.saldo { font-size: 28px; font-weight: 600; text-align: center; color: #2e7d32; }
-.pemasukan { color: #2e7d32; }.pengeluaran { color: #FF8B94; }
-.item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #FFE5EC; }
-  #maskot { text-align: center; font-size: 14px; background: #FFF0F3; padding: 10px; border-radius: 15px; margin-top: 10px; }
-  #installBtn { background: #A8E6CF; display: none; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keuanganku</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4CAF50">
+  <style>
+    body { font-family: 'Segoe UI'; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 20px; }
+    h1 { color: #2E7D32; text-align: center; }
+    .saldo { font-size: 28px; font-weight: bold; color: #2E7D32; background: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+    .box { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; }
+    input, select { padding: 12px; width: 95%; border-radius: 10px; border: 2px solid #4CAF50; font-size: 16px; margin: 8px 0; }
+    button { padding: 14px 20px; border-radius: 10px; border: none; background: #4CAF50; color: white; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
+    .pemasukan { color: #2E7D32; font-weight: bold; } .pengeluaran { color: #D32F2F; font-weight: bold; }
+    #riwayat { max-width: 600px; margin: 20px auto; }
+    .item { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  </style>
 </head>
 <body>
+  <h1>💰 Keuanganku 💰</h1>
+  <div class="saldo">Saldo: Rp <span id="totalSaldo">0</span></div>
 
-<h1>💰 Catatanku Imut</h1>
-<button id="installBtn">📲 Install Aplikasi</button>
+  <div class="box">
+    <input type="text" id="keterangan" placeholder="Keterangan: Gaji, Beli Makan">
+    <input type="number" id="jumlah" placeholder="Jumlah: 50000">
+    <select id="jenis">
+      <option value="pemasukan">+ Pemasukan</option>
+      <option value="pengeluaran">- Pengeluaran</option>
+    </select>
+    <button onclick="tambahData()">Simpan Transaksi</button>
+  </div>
 
-<div class="card">
-  <p id="tips" style="text-align:center; font-style:italic; color:#555;">✨ Loading tips... ✨</p>
-  <p>Pemasukan: <span class="pemasukan" id="totalMasuk">Rp 0</span></p>
-  <p>Pengeluaran: <span class="pengeluaran" id="totalKeluar">Rp 0</span></p>
-  <p class="saldo">Saldo: <span id="saldo">Rp 0</span></p>
-  <div id="maskot"></div>
-</div>
-
-<div class="card">
-  <h3>➕ Tambah Transaksi</h3>
-  <input type="date" id="tanggal">
-  <select id="jenis">
-    <option value="masuk">💰 Pemasukan</option>
-    <option value="keluar">💸 Pengeluaran</option>
-  </select>
-  <input type="text" id="kategori" placeholder="Emoji + Kategori: 🍜 Makan, 🚌 Transport">
-  <input type="number" id="jumlah" placeholder="Jumlah Rp">
-  <button onclick="tambahTransaksi()">Simpan</button>
-</div>
-
-<div class="card">
-  <h3>📊 Grafik Bulan Ini</h3>
-  <canvas id="grafik"></canvas>
-</div>
-
-<div class="card">
-  <h3>📒 Riwayat</h3>
+  <h3 style="text-align:center;">Riwayat</h3>
   <div id="riwayat"></div>
-  <button class="gdrive" onclick="backupKeGDrive()">☁️ Backup ke Google Drive</button>
-  <button class="gdrive" onclick="restoreDariGDrive()">☁️ Restore dari Google Drive</button>
-  <button class="export" onclick="exportCSV()">📥 Export ke CSV</button>
-  <button onclick="hapusSemua()" style="background:#555">🗑️ Hapus Semua</button>
-</div>
 
-<script>
-let data = JSON.parse(localStorage.getItem('keuanganku_pwa')) || [];
-document.getElementById('tanggal').valueAsDate = new Date();
-let chart; let deferredPrompt;
+  <script>
+    let db;
+    let request = indexedDB.open("KeuanganDBv2", 1);
+    request.onupgradeneeded = e => { db = e.target.result; db.createObjectStore("transaksi", {keyPath: "id", autoIncrement: true}); };
+    request.onsuccess = e => { db = e.target.result; tampilkanData(); }
 
-const tips = ["Jangan lupa sisihin 20% yaa 💪", "Ngopi boleh, catat juga ya ☕", "Kamu hebat udah ngatur uang!"];
-document.getElementById('tips').innerText = "✨ " + tips[Math.floor(Math.random()*tips.length)] + " ✨";
-
-function formatRupiah(angka) { return 'Rp ' + angka.toLocaleString('id-ID'); }
-function simpan() { localStorage.setItem('keuanganku_pwa', JSON.stringify(data)); tampilkanData(); }
-
-function tambahTransaksi() {
-  let tgl = document.getElementById('tanggal').value;
-  let jenis = document.getElementById('jenis').value;
-  let kategori = document.getElementById('kategori').value;
-  let jumlah = parseInt(document.getElementById('jumlah').value);
-  if(!tgl ||!kategori ||!jumlah) return alert('Lengkapi dulu yaa 🥺');
-  data.push({tgl, jenis, kategori, jumlah}); simpan();
-  document.getElementById('kategori').value = ''; document.getElementById('jumlah').value = '';
-}
-
-function hapus(index) { if(confirm('Yakin hapus?')) { data.splice(index, 1); simpan(); } }
-function hapusSemua() { if(confirm('Yakin hapus semua?')) { data = []; simpan(); } }
-function exportCSV() {
-  let csv = 'Tanggal,Jenis,Kategori,Jumlah\n';
-  data.forEach(d => csv += `${d.tgl},${d.jenis},${d.kategori},${d.jumlah}\n`);
-  let blob = new Blob([csv], {type: 'text/csv'}); let url = URL.createObjectURL(blob);
-  let a = document.createElement('a'); a.href = url; a.download = 'catatanku.csv'; a.click();
-}
-function backupKeGDrive() {
-  let jsonData = JSON.stringify(data); let blob = new Blob([jsonData], {type: 'application/json'});
-  let url = URL.createObjectURL(blob); let a = document.createElement('a');
-  a.href = url; a.download = 'backup_keuanganku.json'; a.click();
-  alert('Upload file ini ke Google Drive ya!');
-}
-function restoreDariGDrive() {
-  let input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
-  input.onchange = e => { let file = e.target.files[0]; let reader = new FileReader();
-    reader.onload = event => { data = JSON.parse(event.target.result); simpan(); alert('Restore berhasil! 💖'); };
-    reader.readAsText(file); };
-  input.click();
-}
-function cekMaskot(totalKeluar) {
-  let msg = totalKeluar > 500000? "😿 Meow~ Waduh pengeluaran udah 500rb. Hemat dikit yuk!" : "😸 Bagus! Tetap catat ya tiap hari";
-  document.getElementById('maskot').innerText = msg;
-}
-function tampilkanData() {
-  let riwayat = document.getElementById('riwayat'); riwayat.innerHTML = '';
-  let totalMasuk = 0, totalKeluar = 0;
-  data.sort((a,b) => b.tgl.localeCompare(a.tgl)).forEach((item, i) => {
-    if(item.jenis === 'masuk') totalMasuk += item.jumlah; else totalKeluar += item.jumlah;
-    let warna = item.jenis === 'masuk'? 'pemasukan' : 'pengeluaran';
-    let tanda = item.jenis === 'masuk'? '+' : '-';
-    riwayat.innerHTML += `<div class="item"><div><b>${item.kategori}</b><br><small>${item.tgl}</small></div><div><span class="${warna}">${tanda} ${formatRupiah(item.jumlah)}</span><button class="delete" onclick="hapus(${i})">X</button></div></div>`;
-  });
-  document.getElementById('totalMasuk').innerText = formatRupiah(totalMasuk);
-  document.getElementById('totalKeluar').innerText = formatRupiah(totalKeluar);
-  document.getElementById('saldo').innerText = formatRupiah(totalMasuk - totalKeluar); cekMaskot(totalKeluar);
-  if(chart) chart.destroy();
-  chart = new Chart(document.getElementById('grafik'), {
-    type: 'bar', data: { labels: ['Pemasukan', 'Pengeluaran'], datasets: [{ data: [totalMasuk, totalKeluar], backgroundColor: ['#A8E6CF', '#FF8B94'], borderRadius: 15 }] }, options: { plugins: { legend: { display: false } }
-  });
-}
-
-// KODE BUAT INSTALL APP
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault(); deferredPrompt = e;
-  document.getElementById('installBtn').style.display = 'block';
-});
-document.getElementById('installBtn').addEventListener('click', () => {
-  deferredPrompt.prompt(); deferredPrompt = null;
-  document.getElementById('installBtn').style.display = 'none';
-});
-
-// DAFTAR SERVICE WORKER BIAR OFFLINE
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-
-if ('Notification' in window) {
-  Notification.requestPermission();
-  setInterval(() => { let now = new Date(); if(now.getHours() == 20 && now.getMinutes() == 0) { new Notification("💖 Udah catat hari ini belum?", {body: "Biar dompet tetap aman yaa"}) } }, 60000);
-}
-tampilkanData();
-</script>
+    function tampilkanData() {
+      let tx = db.transaction("transaksi", "readonly"); let store = tx.objectStore("transaksi"); let req = store.getAll();
+      req.onsuccess = () => {
+        let data = req.result; let saldo = 0; let html = '';
+        data.reverse().forEach(t => {
+          saldo += t.jenis === 'pemasukan' ? t.jumlah : -t.jumlah;
+          html += `<div class="item"><div>${t.keterangan} <br><small class="${t.jenis}">${t.jenis}</small></div><div class="${t.jenis}">Rp ${t.jumlah.toLocaleString()}</div></div>`;
+        });
+        document.getElementById('riwayat').innerHTML = html || '<p style="color:gray;text-align:center;">Belum ada transaksi</p>';
+        document.getElementById('totalSaldo').innerText = saldo.toLocaleString();
+      }
+    }
+    function tambahData() {
+      let ket = document.getElementById('keterangan').value; let jum = parseInt(document.getElementById('jumlah').value); let jen = document.getElementById('jenis').value;
+      if(ket === '' || !jum) return alert('Isi semua dulu!');
+      let tx = db.transaction("transaksi", "readwrite"); tx.objectStore("transaksi").add({keterangan: ket, jumlah: jum, jenis: jen});
+      tx.oncomplete = () => { document.getElementById('keterangan').value = ''; document.getElementById('jumlah').value = ''; tampilkanData(); }
+    }
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+  </script>
 </body>
 </html>
