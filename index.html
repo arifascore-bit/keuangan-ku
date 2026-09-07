@@ -3,62 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Keuanganku</title>
+  <title>💸 Dompet Imutku</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4CAF50">
+  <meta name="theme-color" content="#FF9A9E">
   <style>
-    body { font-family: 'Segoe UI'; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 20px; }
-    h1 { color: #2E7D32; text-align: center; }
-    .saldo { font-size: 28px; font-weight: bold; color: #2E7D32; background: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-    .box { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; }
-    input, select { padding: 12px; width: 95%; border-radius: 10px; border: 2px solid #4CAF50; font-size: 16px; margin: 8px 0; }
-    button { padding: 14px 20px; border-radius: 10px; border: none; background: #4CAF50; color: white; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
-    .pemasukan { color: #2E7D32; font-weight: bold; } .pengeluaran { color: #D32F2F; font-weight: bold; }
-    #riwayat { max-width: 600px; margin: 20px auto; }
-    .item { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    * { font-family: 'Poppins', sans-serif; }
+    body { 
+      background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%); 
+      min-height: 100vh; padding: 20px; margin: 0;
+    }
+    .container { max-width: 500px; margin: 0 auto; }
+    h1 { color: white; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+    
+    .saldo-card {
+      background: white; border-radius: 25px; padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; margin-bottom: 20px;
+    }
+    .saldo-label { color: #888; font-size: 14px; }
+    .saldo { font-size: 36px; font-weight: 700; color: #FF6B6B; }
+
+    .box {
+      background: white; border-radius: 25px; padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 20px;
+    }
+    input, select {
+      width: 100%; padding: 14px; border: 2px solid #FAD0C4; border-radius: 15px;
+      font-size: 16px; margin: 8px 0; box-sizing: border-box; outline: none;
+    }
+    input:focus { border-color: #FF9A9E; }
+    button {
+      width: 100%; padding: 16px; border: none; border-radius: 15px;
+      background: linear-gradient(90deg, #FF9A9E, #FECFEF); color: white;
+      font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 10px;
+      transition: transform 0.2s;
+    }
+    button:active { transform: scale(0.95); }
+
+    .item {
+      background: white; padding: 15px; margin: 10px 0; border-radius: 15px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); animation: masuk 0.3s;
+    }
+    @keyframes masuk { from {opacity: 0; transform: translateY(-10px);} to {opacity: 1; transform: translateY(0);} }
+    .pemasukan { color: #4CAF50; font-weight: 700; }
+    .pengeluaran { color: #F44336; font-weight: 700; }
+    .delete { background: none; border: none; font-size: 20px; cursor: pointer; }
+    .emoji { font-size: 24px; margin-right: 8px; }
   </style>
 </head>
 <body>
-  <h1>💰 Keuanganku 💰</h1>
-  <div class="saldo">Saldo: Rp <span id="totalSaldo">0</span></div>
+  <div class="container">
+    <h1>💸 Dompet Imutku 💖</h1>
+    
+    <div class="saldo-card">
+      <div class="saldo-label">Sisa Uang Kamu</div>
+      <div class="saldo">Rp <span id="totalSaldo">0</span></div>
+    </div>
 
-  <div class="box">
-    <input type="text" id="keterangan" placeholder="Keterangan: Gaji, Beli Makan">
-    <input type="number" id="jumlah" placeholder="Jumlah: 50000">
-    <select id="jenis">
-      <option value="pemasukan">+ Pemasukan</option>
-      <option value="pengeluaran">- Pengeluaran</option>
-    </select>
-    <button onclick="tambahData()">Simpan Transaksi</button>
+    <div class="box">
+      <input type="text" id="keterangan" placeholder="✨ Keterangan: Gaji, Jajan Boba">
+      <input type="number" id="jumlah" placeholder="💰 Jumlah: 50000">
+      <select id="jenis">
+        <option value="pemasukan">💚 Pemasukan</option>
+        <option value="pengeluaran">❤️ Pengeluaran</option>
+      </select>
+      <button onclick="tambahData()">➕ Simpan Transaksi</button>
+    </div>
+
+    <h3 style="color:white; text-align:center;">📒 Riwayat Imut</h3>
+    <div id="riwayat"></div>
   </div>
 
-  <h3 style="text-align:center;">Riwayat</h3>
-  <div id="riwayat"></div>
-
   <script>
-    let db;
-    let request = indexedDB.open("KeuanganDBv2", 1);
-    request.onupgradeneeded = e => { db = e.target.result; db.createObjectStore("transaksi", {keyPath: "id", autoIncrement: true}); };
-    request.onsuccess = e => { db = e.target.result; tampilkanData(); }
+    // PAKE LOCALSTORAGE BIAR 100% NYIMPEN DI HP
+    let data = JSON.parse(localStorage.getItem('dompetImut')) || [];
 
     function tampilkanData() {
-      let tx = db.transaction("transaksi", "readonly"); let store = tx.objectStore("transaksi"); let req = store.getAll();
-      req.onsuccess = () => {
-        let data = req.result; let saldo = 0; let html = '';
-        data.reverse().forEach(t => {
-          saldo += t.jenis === 'pemasukan' ? t.jumlah : -t.jumlah;
-          html += `<div class="item"><div>${t.keterangan} <br><small class="${t.jenis}">${t.jenis}</small></div><div class="${t.jenis}">Rp ${t.jumlah.toLocaleString()}</div></div>`;
-        });
-        document.getElementById('riwayat').innerHTML = html || '<p style="color:gray;text-align:center;">Belum ada transaksi</p>';
-        document.getElementById('totalSaldo').innerText = saldo.toLocaleString();
-      }
+      let saldo = 0;
+      let html = '';
+      data.reverse().forEach((t, index) => {
+        saldo += t.jenis === 'pemasukan' ? t.jumlah : -t.jumlah;
+        let emoji = t.jenis === 'pemasukan' ? '💚' : '❤️';
+        html += `
+          <div class="item">
+            <div><span class="emoji">${emoji}</span> ${t.keterangan}</div>
+            <div>
+              <span class="${t.jenis}">Rp ${t.jumlah.toLocaleString()}</span>
+              <button class="delete" onclick="hapusData(${t.id})">🗑️</button>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById('riwayat').innerHTML = html || '<p style="color:white;text-align:center;">Belum ada transaksi 🥺</p>';
+      document.getElementById('totalSaldo').innerText = saldo.toLocaleString();
     }
+
     function tambahData() {
-      let ket = document.getElementById('keterangan').value; let jum = parseInt(document.getElementById('jumlah').value); let jen = document.getElementById('jenis').value;
-      if(ket === '' || !jum) return alert('Isi semua dulu!');
-      let tx = db.transaction("transaksi", "readwrite"); tx.objectStore("transaksi").add({keterangan: ket, jumlah: jum, jenis: jen});
-      tx.oncomplete = () => { document.getElementById('keterangan').value = ''; document.getElementById('jumlah').value = ''; tampilkanData(); }
+      let ket = document.getElementById('keterangan').value;
+      let jum = parseInt(document.getElementById('jumlah').value);
+      let jen = document.getElementById('jenis').value;
+      if(ket === '' || !jum) return alert('Lengkapi dulu yaa 🥺');
+
+      data.push({id: Date.now(), keterangan: ket, jumlah: jum, jenis: jen});
+      localStorage.setItem('dompetImut', JSON.stringify(data));
+      
+      document.getElementById('keterangan').value = ''; 
+      document.getElementById('jumlah').value = '';
+      tampilkanData();
     }
+
+    function hapusData(id) {
+      data = data.filter(t => t.id !== id);
+      localStorage.setItem('dompetImut', JSON.stringify(data));
+      tampilkanData();
+    }
+
+    tampilkanData(); // load pas buka
     if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
   </script>
 </body>
