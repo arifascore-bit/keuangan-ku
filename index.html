@@ -6,120 +6,124 @@
   <title>💸 Dompet Imutku</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FF9A9E">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
     * { font-family: 'Poppins', sans-serif; }
-    body { 
-      background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%); 
-      min-height: 100vh; padding: 20px; margin: 0;
-    }
+    body { background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%); min-height: 100vh; padding: 20px; margin: 0; }
     .container { max-width: 500px; margin: 0 auto; }
     h1 { color: white; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
     
-    .saldo-card {
-      background: white; border-radius: 25px; padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; margin-bottom: 20px;
-    }
-    .saldo-label { color: #888; font-size: 14px; }
-    .saldo { font-size: 36px; font-weight: 700; color: #FF6B6B; }
+    .tabs { display: flex; background: white; border-radius: 20px; padding: 5px; margin-bottom: 20px; }
+    .tab { flex: 1; padding: 12px; border: none; background: none; border-radius: 15px; font-weight: 600; cursor: pointer; }
+    .tab.active { background: linear-gradient(90deg, #FF9A9E, #FECFEF); color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    .box {
-      background: white; border-radius: 25px; padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 20px;
-    }
-    input, select {
-      width: 100%; padding: 14px; border: 2px solid #FAD0C4; border-radius: 15px;
-      font-size: 16px; margin: 8px 0; box-sizing: border-box; outline: none;
-    }
-    input:focus { border-color: #FF9A9E; }
-    button {
-      width: 100%; padding: 16px; border: none; border-radius: 15px;
-      background: linear-gradient(90deg, #FF9A9E, #FECFEF); color: white;
-      font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 10px;
-      transition: transform 0.2s;
-    }
-    button:active { transform: scale(0.95); }
-
-    .item {
-      background: white; padding: 15px; margin: 10px 0; border-radius: 15px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1); animation: masuk 0.3s;
-    }
-    @keyframes masuk { from {opacity: 0; transform: translateY(-10px);} to {opacity: 1; transform: translateY(0);} }
-    .pemasukan { color: #4CAF50; font-weight: 700; }
-    .pengeluaran { color: #F44336; font-weight: 700; }
-    .delete { background: none; border: none; font-size: 20px; cursor: pointer; }
-    .emoji { font-size: 24px; margin-right: 8px; }
+    .saldo-card, .box { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 20px; }
+    .saldo { font-size: 32px; font-weight: 700; color: #FF6B6B; text-align: center; }
+    input, select { width: 100%; padding: 14px; border: 2px solid #FAD0C4; border-radius: 15px; font-size: 16px; margin: 8px 0; box-sizing: border-box; }
+    button { width: 100%; padding: 16px; border: none; border-radius: 15px; background: linear-gradient(90deg, #FF9A9E, #FECFEF); color: white; font-size: 18px; font-weight: 600; cursor: pointer; }
+    .item { background: white; padding: 15px; margin: 10px 0; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .pemasukan { color: #4CAF50; font-weight: 700; } .pengeluaran { color: #F44336; font-weight: 700; }
+    .kategori { font-size: 12px; background: #FAD0C4; padding: 3px 10px; border-radius: 10px; }
+    .tanggal { font-size: 12px; color: #999; }
+    canvas { background: white; border-radius: 20px; padding: 15px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>💸 Dompet Imutku 💖</h1>
     
-    <div class="saldo-card">
-      <div class="saldo-label">Sisa Uang Kamu</div>
-      <div class="saldo">Rp <span id="totalSaldo">0</span></div>
+    <div class="tabs">
+      <button class="tab active" onclick="gantiTab('catat')">📝 Catat</button>
+      <button class="tab" onclick="gantiTab('grafik')">📊 Grafik</button>
     </div>
 
-    <div class="box">
-      <input type="text" id="keterangan" placeholder="✨ Keterangan: Gaji, Jajan Boba">
-      <input type="number" id="jumlah" placeholder="💰 Jumlah: 50000">
-      <select id="jenis">
-        <option value="pemasukan">💚 Pemasukan</option>
-        <option value="pengeluaran">❤️ Pengeluaran</option>
-      </select>
-      <button onclick="tambahData()">➕ Simpan Transaksi</button>
+    <div id="catat" class="tab-content active">
+      <div class="saldo-card">
+        <div>Sisa Uang Kamu</div>
+        <div class="saldo">Rp <span id="totalSaldo">0</span></div>
+      </div>
+      <div class="box">
+        <input type="date" id="tanggal">
+        <input type="text" id="keterangan" placeholder="✨ Keterangan">
+        <input type="number" id="jumlah" placeholder="💰 Jumlah">
+        <select id="jenis"><option value="pemasukan">💚 Pemasukan</option><option value="pengeluaran">❤️ Pengeluaran</option></select>
+        <select id="kategori">
+          <option>🍜 Makanan</option><option>🚌 Transport</option><option>🏥 Kesehatan</option>
+          <option>🐷 Tabungan</option><option>🎁 Hadiah</option><option>📱 Pulsa</option><option>🛍️ Lainnya</option>
+        </select>
+        <button onclick="tambahData()">➕ Simpan</button>
+      </div>
+      <div id="riwayat"></div>
     </div>
 
-    <h3 style="color:white; text-align:center;">📒 Riwayat Imut</h3>
-    <div id="riwayat"></div>
+    <div id="grafik" class="tab-content">
+      <div class="box">
+        <h3>📊 Pengeluaran Bulan Ini</h3>
+        <canvas id="chartKategori"></canvas>
+      </div>
+    </div>
   </div>
 
   <script>
-    // PAKE LOCALSTORAGE BIAR 100% NYIMPEN DI HP
     let data = JSON.parse(localStorage.getItem('dompetImut')) || [];
+    let chart;
+    document.getElementById('tanggal').valueAsDate = new Date();
+
+    function gantiTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector(`[onclick="gantiTab('${tab}')"]`).classList.add('active');
+      document.getElementById(tab).classList.add('active');
+      if(tab === 'grafik') buatGrafik();
+    }
 
     function tampilkanData() {
-      let saldo = 0;
-      let html = '';
-      data.reverse().forEach((t, index) => {
+      let saldo = 0; let html = '';
+      data.slice().reverse().forEach((t) => {
         saldo += t.jenis === 'pemasukan' ? t.jumlah : -t.jumlah;
-        let emoji = t.jenis === 'pemasukan' ? '💚' : '❤️';
-        html += `
-          <div class="item">
-            <div><span class="emoji">${emoji}</span> ${t.keterangan}</div>
-            <div>
-              <span class="${t.jenis}">Rp ${t.jumlah.toLocaleString()}</span>
-              <button class="delete" onclick="hapusData(${t.id})">🗑️</button>
-            </div>
+        html += `<div class="item">
+          <div style="display:flex; justify-content:space-between;">
+            <div><b>${t.keterangan}</b><br><span class="kategori">${t.kategori}</span></div>
+            <div><span class="${t.jenis}">Rp ${t.jumlah.toLocaleString()}</span><button onclick="hapusData(${t.id})">🗑️</button></div>
           </div>
-        `;
+          <div class="tanggal">📅 ${new Date(t.tanggal).toLocaleDateString('id-ID')}</div>
+        </div>`;
       });
-      document.getElementById('riwayat').innerHTML = html || '<p style="color:white;text-align:center;">Belum ada transaksi 🥺</p>';
+      document.getElementById('riwayat').innerHTML = html || '<p style="text-align:center;">Belum ada transaksi 🥺</p>';
       document.getElementById('totalSaldo').innerText = saldo.toLocaleString();
     }
 
     function tambahData() {
-      let ket = document.getElementById('keterangan').value;
-      let jum = parseInt(document.getElementById('jumlah').value);
-      let jen = document.getElementById('jenis').value;
-      if(ket === '' || !jum) return alert('Lengkapi dulu yaa 🥺');
+      let t = { id: Date.now(), tanggal: document.getElementById('tanggal').value, keterangan: document.getElementById('keterangan').value, 
+                jumlah: parseInt(document.getElementById('jumlah').value), jenis: document.getElementById('jenis').value, kategori: document.getElementById('kategori').value };
+      if(!t.keterangan || !t.jumlah) return alert('Lengkapi dulu yaa 🥺');
+      data.push(t); localStorage.setItem('dompetImut', JSON.stringify(data));
+      document.getElementById('keterangan').value = ''; document.getElementById('jumlah').value = '';
+      tampilkanData();
+    }
 
-      data.push({id: Date.now(), keterangan: ket, jumlah: jum, jenis: jen});
-      localStorage.setItem('dompetImut', JSON.stringify(data));
+    function hapusData(id) { data = data.filter(t => t.id !== id); localStorage.setItem('dompetImut', JSON.stringify(data)); tampilkanData(); }
+
+    function buatGrafik() {
+      let pengeluaran = data.filter(t => t.jenis === 'pengeluaran');
+      let kategori = {};
+      pengeluaran.forEach(t => { kategori[t.kategori] = (kategori[t.kategori] || 0) + t.jumlah; });
       
-      document.getElementById('keterangan').value = ''; 
-      document.getElementById('jumlah').value = '';
-      tampilkanData();
+      const ctx = document.getElementById('chartKategori').getContext('2d');
+      if(chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(kategori),
+          datasets: [{ data: Object.values(kategori), backgroundColor: ['#FF9A9E','#FECFEF','#A1EAF1','#FFD3A0','#B4E7CE','#D0B3FF','#FFB3BA'] }]
+        }
+      });
     }
 
-    function hapusData(id) {
-      data = data.filter(t => t.id !== id);
-      localStorage.setItem('dompetImut', JSON.stringify(data));
-      tampilkanData();
-    }
-
-    tampilkanData(); // load pas buka
+    tampilkanData();
     if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
   </script>
 </body>
