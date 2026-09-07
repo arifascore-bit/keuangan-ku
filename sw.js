@@ -1,2 +1,3 @@
-self.addEventListener('install', (e) => { self.skipWaiting(); });
-self.addEventListener('fetch', (e) => {});
+const CACHE_NAME = 'keuangan-v2'; 
+self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./', './index.html', './manifest.json']))); self.skipWaiting(); });
+self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(response => response || fetch(e.request))); });
